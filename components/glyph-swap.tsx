@@ -180,7 +180,7 @@ export default function GlyphSwap() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">From</label>
                 <Select
                   value={currentFromToken.symbol}
-                  onValueChange={(value) => setCurrentFromToken(TOKENS[value])}
+                  onValueChange={(value) => setCurrentFromToken(TOKENS[value as keyof typeof TOKENS])}
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue>
@@ -220,7 +220,7 @@ export default function GlyphSwap() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">To</label>
                 <Select
                   value={currentToToken.symbol}
-                  onValueChange={(value) => setCurrentToToken(TOKENS[value])}
+                  onValueChange={(value) => setCurrentToToken(TOKENS[value as keyof typeof TOKENS])}
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue>
