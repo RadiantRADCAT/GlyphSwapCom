@@ -9,12 +9,19 @@ import { AlertCircle, Check, Copy, ChevronDown } from 'lucide-react'
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import Image from 'next/image'
 
+type TokenType = {
+  symbol: string;
+  name: string;
+  imageUrl: string;
+  totalSupply: number;
+};
+
 const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxtBhBPpGYwjUuksHmobgUNIo3rdEtsKULSUJMYvdb-iIOLY1aZieoN_Q1y_ZjVVSpRkA/exec'
 const FEE_PERCENTAGE = 3
 const SWAP_WALLET = 'YOUR_SWAP_WALLET_ADDRESS_HERE'
 const DISCORD_URL = 'https://discord.gg/pwBMDDzWWG'
 
-const TOKENS = {
+const TOKENS: Record<string, TokenType> = {
   RXD: { symbol: 'RXD', name: 'Radiant', imageUrl: 'https://static.wixstatic.com/media/c0fd9f_33dd965b95d54dfe9af12ed99fe5c43a~mv2.png', totalSupply: 120000000 },
   RADCAT: { symbol: 'RADCAT', name: 'RadCat', imageUrl: 'https://static.wixstatic.com/media/c0fd9f_c2c4b7bf64464273a2cf3e30d08a9692~mv2.png', totalSupply: 21000000 },
   FUGAZI: { symbol: 'FUGAZI', name: 'Fugazi', imageUrl: 'https://static.wixstatic.com/media/c0fd9f_27b255b33ae74f2c9b7bb9a6c3cf9076~mv2.jpeg', totalSupply: 21000000 },
@@ -50,14 +57,14 @@ export default function GlyphSwap() {
     }
   }
 
-  function calculateSwapAmount(fromToken, toToken, amount) {
+  function calculateSwapAmount(fromToken: TokenType, toToken: TokenType, amount: number): number {
     const ratio = toToken.totalSupply / fromToken.totalSupply
     const baseAmount = amount * ratio
     const feeAmount = baseAmount * (FEE_PERCENTAGE / 100)
     return baseAmount - feeAmount
   }
 
-  function calculateMinimumInputAmount(fromToken, toToken) {
+  function calculateMinimumInputAmount(fromToken: TokenType, toToken: TokenType) {
     const ratio = toToken.totalSupply / fromToken.totalSupply
     const minAmountBeforeFee = ratio
     const minAmountWithFee = minAmountBeforeFee * (100 / (100 - FEE_PERCENTAGE))
