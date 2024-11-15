@@ -9,6 +9,13 @@ import { AlertCircle, Check, Copy, ChevronDown } from 'lucide-react'
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import Image from 'next/image'
 
+type Token = {
+  symbol: string;
+  name: string;
+  imageUrl: string;
+  totalSupply: number;
+};
+
 type TokenType = {
   symbol: string;
   name: string;
@@ -57,18 +64,18 @@ export default function GlyphSwap() {
     }
   }
 
-  function calculateSwapAmount(fromToken: TokenType, toToken: TokenType, amount: number): number {
-    const ratio = toToken.totalSupply / fromToken.totalSupply
-    const baseAmount = amount * ratio
-    const feeAmount = baseAmount * (FEE_PERCENTAGE / 100)
-    return baseAmount - feeAmount
+  function calculateSwapAmount(fromToken: Token, toToken: Token, amount: number): number {
+    const ratio = toToken.totalSupply / fromToken.totalSupply;
+    const baseAmount = amount * ratio;
+    const feeAmount = baseAmount * (FEE_PERCENTAGE / 100);
+    return baseAmount - feeAmount;
   }
 
-  function calculateMinimumInputAmount(fromToken: TokenType, toToken: TokenType) {
-    const ratio = toToken.totalSupply / fromToken.totalSupply
-    const minAmountBeforeFee = ratio
-    const minAmountWithFee = minAmountBeforeFee * (100 / (100 - FEE_PERCENTAGE))
-    return minAmountWithFee
+  function calculateMinimumInputAmount(fromToken: Token, toToken: Token): number {
+    const ratio = toToken.totalSupply / fromToken.totalSupply;
+    const minAmountBeforeFee = ratio;
+    const minAmountWithFee = minAmountBeforeFee * (100 / (100 - FEE_PERCENTAGE));
+    return minAmountWithFee;
   }
 
   function updateEstimatedAmount() {
