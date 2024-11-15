@@ -116,20 +116,21 @@ export default function GlyphSwap() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-cover bg-center bg-fixed p-5 font-['Red_Hat_Display',sans-serif]" style={{backgroundImage: "url('https://static.wixstatic.com/media/c0fd9f_7a29e6d3a40f4821a14dbe8f93b9d069~mv2.jpg')"}}>
-      <div className="max-w-md w-full bg-white/90 backdrop-blur-md rounded-2xl shadow-lg p-6">
+    <div className="min-h-screen flex items-center justify-center bg-cover bg-center bg-fixed p-5 font-['Red_Hat_Display',sans-serif] overflow-y-auto"
+         style={{backgroundImage: "url('https://static.wixstatic.com/media/c0fd9f_7a29e6d3a40f4821a14dbe8f93b9d069~mv2.jpg')"}}>
+      <div className="max-w-[480px] w-full bg-white/90 backdrop-blur-md rounded-2xl shadow-lg p-6 mb-12">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold flex items-center gap-2">
             <Image src="https://static.wixstatic.com/media/c0fd9f_cfacf9e215804e3a8ad37a1f5e0d3f11~mv2.png" alt="Glyph Swap Logo" width={24} height={24} />
-            <span>Glyph</span> <span className="font-normal italic">Swap</span>
+            <span className="font-bold">Glyph</span> <span className="font-normal italic">Swap</span>
           </h1>
-          <div className="text-xs font-medium text-blue-600 bg-blue-100 px-2 py-1 rounded-full">Beta</div>
+          <div className="text-xs font-medium text-blue-700 bg-blue-100 px-2 py-1 rounded-full">Beta</div>
         </div>
 
         {!showSwapResult ? (
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <label htmlFor="fromToken" className="block text-sm font-medium text-gray-700">From</label>
+              <label htmlFor="fromToken" className="block text-sm font-medium text-gray-600">From</label>
               <div className="relative">
                 <button
                   type="button"
@@ -164,7 +165,7 @@ export default function GlyphSwap() {
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="amount" className="block text-sm font-medium text-gray-700">Amount</label>
+              <label htmlFor="amount" className="block text-sm font-medium text-gray-600">Amount</label>
               <input
                 type="number"
                 id="amount"
@@ -176,10 +177,13 @@ export default function GlyphSwap() {
                 required
                 className="w-full p-3 bg-white/80 border border-white/20 rounded-lg transition focus:outline-none focus:border-yellow-400 focus:bg-white/95"
               />
+              <p className="text-xs text-gray-500">
+                Minimum input: {(0.000001).toFixed(6)} {fromToken.symbol} (including {FEE_PERCENTAGE}% fee)
+              </p>
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="toToken" className="block text-sm font-medium text-gray-700">To</label>
+              <label htmlFor="toToken" className="block text-sm font-medium text-gray-600">To</label>
               <div className="relative">
                 <button
                   type="button"
@@ -218,7 +222,7 @@ export default function GlyphSwap() {
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="walletAddress" className="block text-sm font-medium text-gray-700">Your Photonic Wallet Address</label>
+              <label htmlFor="walletAddress" className="block text-sm font-medium text-gray-600">Your Photonic Wallet Address</label>
               <input
                 type="text"
                 id="walletAddress"
