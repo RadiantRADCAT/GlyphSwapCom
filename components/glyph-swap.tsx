@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { AlertCircle, Check, Copy } from 'lucide-react'
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
@@ -162,22 +162,17 @@ export default function GlyphSwap() {
   const minAmount = calculateMinimumInputAmount(currentFromToken, currentToToken)
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 bg-cover bg-center bg-fixed font-['Red_Hat_Display',sans-serif]" style={{backgroundImage: "url('https://static.wixstatic.com/media/c0fd9f_7a29e6d3a40f4821a14dbe8f93b9d069~mv2.jpg')"}}>
-      <Card className="w-full max-w-md bg-white/90 backdrop-blur-md">
-        <CardHeader>
-          <CardTitle className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Image src="https://static.wixstatic.com/media/c0fd9f_cfacf9e215804e3a8ad37a1f5e0d3f11~mv2.png" alt="GlyphSwap Logo" width={24} height={24} />
-              <span className="font-bold">GlyphSwap</span>
-            </div>
-            <div className="text-xs font-medium text-blue-600 bg-blue-100 px-2 py-1 rounded-full">Beta</div>
-          </CardTitle>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 to-gray-800 bg-cover bg-center bg-fixed font-sans">
+      <Card className="w-full max-w-md bg-card/90 backdrop-blur-md shadow-xl">
+        <CardHeader className="space-y-1">
+          <CardTitle className="text-2xl font-bold text-center">GlyphSwap</CardTitle>
+          <CardDescription className="text-center">Swap your tokens with ease</CardDescription>
         </CardHeader>
         <CardContent>
           {!showSwapResult ? (
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">From</label>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground/70">From</label>
                 <Select
                   value={currentFromToken.symbol}
                   onValueChange={(value) => setCurrentFromToken(TOKENS[value as keyof typeof TOKENS])}
@@ -203,21 +198,26 @@ export default function GlyphSwap() {
                 </Select>
               </div>
 
-              <Input
-                type="number"
-                placeholder="0.0"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                min="0"
-                step="any"
-                required
-              />
-              <div className="text-xs text-gray-500">
-                Minimum input: {minAmount.toFixed(6)} {currentFromToken.symbol} (including {FEE_PERCENTAGE}% fee)
+              <div className="space-y-2">
+                <label htmlFor="amount" className="text-sm font-medium text-foreground/70">Amount</label>
+                <Input
+                  id="amount"
+                  type="number"
+                  placeholder="0.0"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  min="0"
+                  step="any"
+                  required
+                  className="bg-background/50"
+                />
+                <div className="text-xs text-muted-foreground">
+                  Minimum input: {minAmount.toFixed(6)} {currentFromToken.symbol} (including {FEE_PERCENTAGE}% fee)
+                </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">To</label>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground/70">To</label>
                 <Select
                   value={currentToToken.symbol}
                   onValueChange={(value) => setCurrentToToken(TOKENS[value as keyof typeof TOKENS])}
@@ -243,32 +243,37 @@ export default function GlyphSwap() {
                 </Select>
               </div>
 
-              <div className="text-sm text-gray-600">
+              <div className="text-sm text-muted-foreground">
                 Available liquidity: {(liquidityPool[currentToToken.symbol] || 0).toLocaleString()} {currentToToken.symbol}
               </div>
 
-              <Input
-                type="text"
-                placeholder="Enter your wallet address"
-                value={walletAddress}
-                onChange={(e) => setWalletAddress(e.target.value)}
-                required
-              />
+              <div className="space-y-2">
+                <label htmlFor="wallet" className="text-sm font-medium text-foreground/70">Wallet Address</label>
+                <Input
+                  id="wallet"
+                  type="text"
+                  placeholder="Enter your wallet address"
+                  value={walletAddress}
+                  onChange={(e) => setWalletAddress(e.target.value)}
+                  required
+                  className="bg-background/50"
+                />
+              </div>
 
               {estimatedAmount > 0 && (
-                <div className="text-sm text-gray-600">
+                <div className="text-sm text-muted-foreground">
                   Estimated amount: {estimatedAmount.toFixed(6)} {currentToToken.symbol}
                 </div>
               )}
 
-              <Button type="submit" className="w-full bg-yellow-400 hover:bg-yellow-500">Swap Tokens</Button>
+              <Button type="submit" className="w-full bg-primary hover:bg-primary/90">Swap Tokens</Button>
             </form>
           ) : (
             <div className="space-y-4">
               <h2 className="text-xl font-bold">Swap Initiated</h2>
               <p>You are swapping {amount} {currentFromToken.symbol} for approximately {estimatedAmount.toFixed(6)} {currentToToken.symbol}.</p>
               <p>Please send {amount} {currentFromToken.symbol} to the following address:</p>
-              <div className="bg-gray-100 p-2 rounded flex items-center justify-between">
+              <div className="bg-muted p-2 rounded flex items-center justify-between">
                 <span className="text-sm break-all">{SWAP_WALLET}</span>
                 <Button variant="outline" size="sm" onClick={() => navigator.clipboard.writeText(SWAP_WALLET)}>
                   <Copy className="h-4 w-4" />
@@ -283,8 +288,9 @@ export default function GlyphSwap() {
                 placeholder="Enter transaction ID" 
                 value={transactionId}
                 onChange={(e) => setTransactionId(e.target.value)}
+                className="bg-background/50"
               />
-              <Button className="w-full bg-yellow-400 hover:bg-yellow-500" onClick={handleVerifyTransaction}>Verify Transaction</Button>
+              <Button className="w-full bg-primary hover:bg-primary/90" onClick={handleVerifyTransaction}>Verify Transaction</Button>
               {verificationStatus === 'success' && (
                 <Alert>
                   <Check className="h-4 w-4" />
@@ -304,7 +310,7 @@ export default function GlyphSwap() {
                 </Alert>
               )}
               <Button variant="outline" className="w-full" onClick={handleBack}>Back to Swap</Button>
-              <a href={DISCORD_URL} target="_blank" rel="noopener noreferrer" className="block text-center text-blue-500 hover:underline">
+              <a href={DISCORD_URL} target="_blank" rel="noopener noreferrer" className="block text-center text-primary hover:underline">
                 Need help? Join our Discord
               </a>
             </div>
