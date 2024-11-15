@@ -162,9 +162,9 @@ export default function GlyphSwap() {
   const minAmount = calculateMinimumInputAmount(currentFromToken, currentToToken)
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 to-gray-800 bg-cover bg-center bg-fixed font-sans">
-      <Card className="w-full max-w-md bg-card/90 backdrop-blur-md shadow-xl">
-        <CardHeader className="space-y-1">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-secondary">
+      <Card className="w-full max-w-md">
+        <CardHeader>
           <CardTitle className="text-2xl font-bold text-center">GlyphSwap</CardTitle>
           <CardDescription className="text-center">Swap your tokens with ease</CardDescription>
         </CardHeader>
@@ -172,12 +172,12 @@ export default function GlyphSwap() {
           {!showSwapResult ? (
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground/70">From</label>
+                <label htmlFor="from-token" className="block text-sm font-medium text-foreground">From</label>
                 <Select
                   value={currentFromToken.symbol}
                   onValueChange={(value) => setCurrentFromToken(TOKENS[value as keyof typeof TOKENS])}
                 >
-                  <SelectTrigger className="w-full">
+                  <SelectTrigger id="from-token" className="w-full">
                     <SelectValue>
                       <div className="flex items-center gap-2">
                         <Image src={currentFromToken.imageUrl} alt={currentFromToken.symbol} width={24} height={24} className="rounded-full" />
@@ -199,7 +199,7 @@ export default function GlyphSwap() {
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="amount" className="text-sm font-medium text-foreground/70">Amount</label>
+                <label htmlFor="amount" className="block text-sm font-medium text-foreground">Amount</label>
                 <Input
                   id="amount"
                   type="number"
@@ -209,20 +209,19 @@ export default function GlyphSwap() {
                   min="0"
                   step="any"
                   required
-                  className="bg-background/50"
                 />
-                <div className="text-xs text-muted-foreground">
+                <p className="text-xs text-muted-foreground">
                   Minimum input: {minAmount.toFixed(6)} {currentFromToken.symbol} (including {FEE_PERCENTAGE}% fee)
-                </div>
+                </p>
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground/70">To</label>
+                <label htmlFor="to-token" className="block text-sm font-medium text-foreground">To</label>
                 <Select
                   value={currentToToken.symbol}
                   onValueChange={(value) => setCurrentToToken(TOKENS[value as keyof typeof TOKENS])}
                 >
-                  <SelectTrigger className="w-full">
+                  <SelectTrigger id="to-token" className="w-full">
                     <SelectValue>
                       <div className="flex items-center gap-2">
                         <Image src={currentToToken.imageUrl} alt={currentToToken.symbol} width={24} height={24} className="rounded-full" />
@@ -243,12 +242,12 @@ export default function GlyphSwap() {
                 </Select>
               </div>
 
-              <div className="text-sm text-muted-foreground">
+              <p className="text-sm text-muted-foreground">
                 Available liquidity: {(liquidityPool[currentToToken.symbol] || 0).toLocaleString()} {currentToToken.symbol}
-              </div>
+              </p>
 
               <div className="space-y-2">
-                <label htmlFor="wallet" className="text-sm font-medium text-foreground/70">Wallet Address</label>
+                <label htmlFor="wallet" className="block text-sm font-medium text-foreground">Wallet Address</label>
                 <Input
                   id="wallet"
                   type="text"
@@ -256,17 +255,16 @@ export default function GlyphSwap() {
                   value={walletAddress}
                   onChange={(e) => setWalletAddress(e.target.value)}
                   required
-                  className="bg-background/50"
                 />
               </div>
 
               {estimatedAmount > 0 && (
-                <div className="text-sm text-muted-foreground">
+                <p className="text-sm text-muted-foreground">
                   Estimated amount: {estimatedAmount.toFixed(6)} {currentToToken.symbol}
-                </div>
+                </p>
               )}
 
-              <Button type="submit" className="w-full bg-primary hover:bg-primary/90">Swap Tokens</Button>
+              <Button type="submit" className="w-full">Swap Tokens</Button>
             </form>
           ) : (
             <div className="space-y-4">
@@ -288,9 +286,8 @@ export default function GlyphSwap() {
                 placeholder="Enter transaction ID" 
                 value={transactionId}
                 onChange={(e) => setTransactionId(e.target.value)}
-                className="bg-background/50"
               />
-              <Button className="w-full bg-primary hover:bg-primary/90" onClick={handleVerifyTransaction}>Verify Transaction</Button>
+              <Button className="w-full" onClick={handleVerifyTransaction}>Verify Transaction</Button>
               {verificationStatus === 'success' && (
                 <Alert>
                   <Check className="h-4 w-4" />
