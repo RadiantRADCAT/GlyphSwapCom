@@ -23,6 +23,10 @@ type TokenType = {
   totalSupply: number;
 };
 
+type LiquidityPool = {
+  [key: string]: number;
+};
+
 const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxtBhBPpGYwjUuksHmobgUNIo3rdEtsKULSUJMYvdb-iIOLY1aZieoN_Q1y_ZjVVSpRkA/exec'
 const FEE_PERCENTAGE = 3
 const SWAP_WALLET = 'YOUR_SWAP_WALLET_ADDRESS_HERE'
@@ -38,13 +42,13 @@ const TOKENS: Record<string, TokenType> = {
 export default function GlyphSwap() {
   const [currentFromToken, setCurrentFromToken] = useState(TOKENS.RXD)
   const [currentToToken, setCurrentToToken] = useState(TOKENS.RADCAT)
-  const [liquidityPool, setLiquidityPool] = useState({})
+  const [liquidityPool, setLiquidityPool] = useState<LiquidityPool>({})
   const [amount, setAmount] = useState('')
   const [walletAddress, setWalletAddress] = useState('')
   const [showSwapResult, setShowSwapResult] = useState(false)
   const [estimatedAmount, setEstimatedAmount] = useState(0)
   const [transactionId, setTransactionId] = useState('')
-  const [verificationStatus, setVerificationStatus] = useState(null)
+  const [verificationStatus, setVerificationStatus] = useState<'success' | 'error' | null>(null)
 
   useEffect(() => {
     fetchLiquidityPool()
@@ -64,7 +68,7 @@ export default function GlyphSwap() {
     }
   }
 
-  function calculateSwapAmount(fromToken: Token, toToken: Token, amount: number): number {
+  function calculateSwapAmount(fromToken: TokenType, toToken: TokenType, amount: number): number {
     const ratio = toToken.totalSupply / fromToken.totalSupply;
     const baseAmount = amount * ratio;
     const feeAmount = baseAmount * (FEE_PERCENTAGE / 100);
@@ -88,7 +92,7 @@ export default function GlyphSwap() {
     }
   }
 
-  async function handleSubmit(e) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     const data = {
       action: 'swap',
