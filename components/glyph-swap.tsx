@@ -1,10 +1,10 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { AlertCircle, Check, Copy, ChevronDown } from 'lucide-react'
+import { AlertCircle, Check, Copy } from 'lucide-react'
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import Image from 'next/image'
 
@@ -42,7 +42,122 @@ export default function GlyphSwap() {
   const [transactionId, setTransactionId] = useState('')
   const [verificationStatus, setVerificationStatus] = useState<'success' | 'error' | null>(null)
 
-  // ... (keeping all the existing functions)
+  const fetchLiquidityPool = useCallback(async () => {
+    try {
+      const response = await fetch(`${GOOGLE_SCRIPT_URL}?action=getLiquidityPool`)
+      const data = await response.json()
+      setLiquidityPool(data)
+    } catch (error) {
+      console.error('Error fetching liquidity pool:', error)
+    }
+  }, [])
+
+  useEffect(() => {
+    fetchLiquidityPool()
+  }, [fetchLiquidityPool])
+
+  const calculateSwapAmount = useCallback((fromToken: Token, toToken: Token, amount: number): number => {
+    const ratio = toToken.totalSupply / fromToken.totalSupply;
+    const baseAmount = amount * ratio;
+    const feeAmount = baseAmount * (FEE_PERCENTAGE / 100);
+    return baseAmount - feeAmount;
+  }, [])
+
+  const calculateMinimumInputAmount = useCallback((fromToken: Token, toToken: Token): number => {
+    const ratio = toToken.totalSupply / fromToken.totalSupply;
+    const minAmountBeforeFee = ratio;
+    const minAmountWithFee = minAmountBeforeFee * (100 / (100 - FEE_PERCENTAGE));
+    return minAmountWithFee;
+  }, [])
+
+  const updateEstimatedAmount = useCallback(() => {
+    const amountValue = parseFloat(amount)
+    if (!isNaN(amountValue)) {
+      const estimated = calculateSwapAmount(currentFromToken, currentToToken, amountValue)
+      setEstimatedAmount(estimated)
+    } else {
+      setEstimatedAmount(0)
+    }
+  }, [amount, currentFromToken, currentToToken, calculateSwapAmount])
+
+  useEffect(() => {
+    updateEstimatedAmount()
+  }, [updateEstimatedAmount])
+
+  const handleSubmit = useCallback(async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    const data = {
+      action: 'swap',
+      tokenFrom: currentFromToken.symbol,
+      tokenTo: currentToToken.symbol,
+      amount: parseFloat(amount),
+      receivingAmount: estimatedAmount,
+      walletAddress: walletAddress,
+      timestamp: new Date().toISOString()
+    }
+
+    try {
+      await fetch(GOOGLE_SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+      })
+      setShowSwapResult(true)
+      setLiquidityPool(prevPool => ({
+        ...prevPool,
+        [currentFromToken.symbol]: (prevPool[currentFromToken.symbol] || 0) + parseFloat(amount),
+        [currentToToken.symbol]: (prevPool[currentToToken.symbol] || 0) - estimatedAmount
+      }))
+    } catch (error) {
+      console.error('Error initiating swap:', error)
+      alert('There was an error initiating the swap. Please try again.')
+    }
+  }, [currentFromToken, currentToToken, amount, estimatedAmount, walletAddress])
+
+  const handleBack = useCallback(() => {
+    setShowSwapResult(false)
+    setVerificationStatus(null)
+    setTransactionId('')
+    setAmount('')
+    setWalletAddress('')
+  }, [])
+
+  const handleVerifyTransaction = useCallback(async () => {
+    if (!transactionId) {
+      alert('Please enter your transaction ID')
+      return
+    }
+
+    const data = {
+      action: 'verify',
+      transactionId: transactionId,
+      walletAddress: walletAddress,
+      tokenFrom: currentFromToken.symbol,
+      tokenTo: currentToToken.symbol,
+      amount: amount,
+      timestamp: new Date().toISOString()
+    }
+
+    try {
+      await fetch(GOOGLE_SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+      })
+      setVerificationStatus('success')
+    } catch (error) {
+      console.error('Error verifying transaction:', error)
+      setVerificationStatus('error')
+    }
+  }, [transactionId, walletAddress, currentFromToken.symbol, currentToToken.symbol, amount])
+
+  const minAmount = calculateMinimumInputAmount(currentFromToken, currentToToken)
 
   return (
     <div className="min-h-screen w-full bg-cover bg-center bg-fixed" 
@@ -170,7 +285,52 @@ export default function GlyphSwap() {
             </form>
           ) : (
             <div className="space-y-4">
-              {/* ... (keeping the swap result view unchanged) ... */}
+              <h2 className="text-xl font-bold">Swap Initiated</h2>
+              <p>You are swapping {amount} {currentFromToken.symbol} for approximately {estimatedAmount.toFixed(6)} {currentToToken.symbol}.</p>
+              <p>Please send {amount} {currentFromToken.symbol} to the following address:</p>
+              <div className="bg-gray-100 p-2 rounded flex items-center justify-between">
+                <span className="text-sm break-all">{SWAP_WALLET}</span>
+                <Button variant="outline" size="sm" onClick={() => navigator.clipboard.writeText(SWAP_WALLET)}>
+                  <Copy className="h-4 w-4" />
+                  <span className="sr-only">Copy wallet address</span>
+                </Button>
+              </div>
+              <div className="flex justify-center">
+                <Image src={`/placeholder.svg?height=150&width=150&text=${SWAP_WALLET}`} alt="QR Code" width={150} height={150} />
+              </div>
+              <p>After sending, please enter your transaction ID to verify the swap:</p>
+              <Input 
+                type="text" 
+                placeholder="Enter transaction ID" 
+                value={transactionId}
+                onChange={(e) => setTransactionId(e.target.value)}
+                className="h-14 bg-white border-gray-200"
+              />
+              <Button onClick={handleVerifyTransaction} className="w-full h-14 bg-[#F4B95F] hover:bg-[#E5AA50] text-white font-medium text-lg rounded-xl">
+                Verify Transaction
+              </Button>
+              {verificationStatus === 'success' && (
+                <Alert>
+                  <Check className="h-4 w-4" />
+                  <AlertTitle>Success</AlertTitle>
+                  <AlertDescription>
+                    Your transaction has been verified successfully.
+                  </AlertDescription>
+                </Alert>
+              )}
+              {verificationStatus === 'error' && (
+                <Alert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle>Error</AlertTitle>
+                  <AlertDescription>
+                    There was an error verifying your transaction. Please try again or contact support.
+                  </AlertDescription>
+                </Alert>
+              )}
+              <Button variant="outline" onClick={handleBack} className="w-full h-14">Back to Swap</Button>
+              <a href={DISCORD_URL} target="_blank" rel="noopener noreferrer" className="block text-center text-blue-500 hover:underline">
+                Need help? Join our Discord
+              </a>
             </div>
           )}
         </div>
