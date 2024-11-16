@@ -6,4 +6,7 @@ const nextConfig = {
   },
 }
 
-module.exports = nextConfig
+module.exports = {
+  transpilePackages: ['framer-motion'],
+  // ... other Next.js config options
+}
