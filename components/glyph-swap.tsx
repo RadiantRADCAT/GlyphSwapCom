@@ -1,11 +1,12 @@
 "use client"
 
-import React, { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { AlertCircle, Check, Copy } from 'lucide-react'
+import { AlertCircle, Check, Copy, ChevronDown } from 'lucide-react'
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Card } from "@/components/ui/card"
 import Image from 'next/image'
 
 type Token = {
@@ -57,17 +58,17 @@ export default function GlyphSwap() {
   }, [fetchLiquidityPool])
 
   const calculateSwapAmount = useCallback((fromToken: Token, toToken: Token, amount: number): number => {
-    const ratio = toToken.totalSupply / fromToken.totalSupply;
-    const baseAmount = amount * ratio;
-    const feeAmount = baseAmount * (FEE_PERCENTAGE / 100);
-    return baseAmount - feeAmount;
+    const ratio = toToken.totalSupply / fromToken.totalSupply
+    const baseAmount = amount * ratio
+    const feeAmount = baseAmount * (FEE_PERCENTAGE / 100)
+    return baseAmount - feeAmount
   }, [])
 
   const calculateMinimumInputAmount = useCallback((fromToken: Token, toToken: Token): number => {
-    const ratio = toToken.totalSupply / fromToken.totalSupply;
-    const minAmountBeforeFee = ratio;
-    const minAmountWithFee = minAmountBeforeFee * (100 / (100 - FEE_PERCENTAGE));
-    return minAmountWithFee;
+    const ratio = toToken.totalSupply / fromToken.totalSupply
+    const minAmountBeforeFee = ratio
+    const minAmountWithFee = minAmountBeforeFee * (100 / (100 - FEE_PERCENTAGE))
+    return minAmountWithFee
   }, [])
 
   const updateEstimatedAmount = useCallback(() => {
@@ -162,47 +163,59 @@ export default function GlyphSwap() {
   return (
     <div className="min-h-screen w-full bg-cover bg-center bg-fixed" 
          style={{backgroundImage: "url('https://static.wixstatic.com/media/c0fd9f_7a29e6d3a40f4821a14dbe8f93b9d069~mv2.jpg')"}}>
-      <div className="min-h-screen w-full flex items-center justify-center px-4 py-8">
-        <div className="w-full max-w-md bg-white rounded-3xl p-8">
-          <div className="flex items-center justify-between mb-8">
-            <div className="flex items-center gap-2">
-              <Image 
-                src="https://static.wixstatic.com/media/c0fd9f_cfacf9e215804e3a8ad37a1f5e0d3f11~mv2.png" 
-                alt="GlyphSwap Logo" 
-                width={32} 
-                height={32} 
-              />
-              <h1 className="text-2xl">
-                Glyph<span className="italic">Swap</span>
-              </h1>
-            </div>
-            <div className="text-sm font-medium text-blue-600 bg-blue-100 px-3 py-1 rounded-full">
-              Beta
-            </div>
-          </div>
-
+      <div className="min-h-screen w-full flex items-center justify-center p-4">
+        <Card className="w-full max-w-[480px] bg-white/95 backdrop-blur-sm rounded-[32px] p-8">
           {!showSwapResult ? (
             <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-gray-600 text-lg mb-2">From</label>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Image 
+                    src="https://static.wixstatic.com/media/c0fd9f_cfacf9e215804e3a8ad37a1f5e0d3f11~mv2.png" 
+                    alt="GlyphSwap Logo" 
+                    width={32} 
+                    height={32} 
+                  />
+                  <h1 className="text-2xl font-semibold">
+                    Glyph<span className="font-normal italic">Swap</span>
+                  </h1>
+                </div>
+                <span className="px-3 py-1 text-sm font-medium text-blue-600 bg-blue-50 rounded-full">
+                  Beta
+                </span>
+              </div>
+
+              <div className="space-y-6 pt-4">
+                <div className="space-y-1.5">
+                  <label className="text-gray-600 text-lg">From</label>
                   <Select
                     value={currentFromToken.symbol}
                     onValueChange={(value) => setCurrentFromToken(TOKENS[value])}
                   >
-                    <SelectTrigger className="w-full h-14 bg-white border border-gray-200">
+                    <SelectTrigger className="h-[60px] bg-white border-gray-200 hover:bg-gray-50">
                       <SelectValue>
-                        <div className="flex items-center gap-2">
-                          <Image src={currentFromToken.imageUrl} alt={currentFromToken.symbol} width={24} height={24} className="rounded-full" />
-                          <span className="font-medium">{currentFromToken.symbol}</span>
+                        <div className="flex items-center gap-3">
+                          <Image 
+                            src={currentFromToken.imageUrl} 
+                            alt={currentFromToken.symbol} 
+                            width={32} 
+                            height={32} 
+                            className="rounded-full"
+                          />
+                          <span className="text-lg">{currentFromToken.symbol}</span>
                         </div>
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       {Object.values(TOKENS).map(token => (
                         <SelectItem key={token.symbol} value={token.symbol}>
-                          <div className="flex items-center gap-2">
-                            <Image src={token.imageUrl} alt={token.symbol} width={24} height={24} className="rounded-full" />
+                          <div className="flex items-center gap-3">
+                            <Image 
+                              src={token.imageUrl} 
+                              alt={token.symbol} 
+                              width={32} 
+                              height={32} 
+                              className="rounded-full"
+                            />
                             <span>{token.symbol}</span>
                           </div>
                         </SelectItem>
@@ -219,32 +232,44 @@ export default function GlyphSwap() {
                   min="0"
                   step="any"
                   required
-                  className="h-14 bg-white border-gray-200 text-lg"
+                  className="h-[60px] bg-white border-gray-200 text-lg px-4"
                 />
                 
                 <div className="text-sm text-gray-500">
                   Minimum input: {minAmount.toFixed(6)} {currentFromToken.symbol} (including {FEE_PERCENTAGE}% fee)
                 </div>
 
-                <div>
-                  <label className="block text-gray-600 text-lg mb-2">To</label>
+                <div className="space-y-1.5">
+                  <label className="text-gray-600 text-lg">To</label>
                   <Select
                     value={currentToToken.symbol}
                     onValueChange={(value) => setCurrentToToken(TOKENS[value])}
                   >
-                    <SelectTrigger className="w-full h-14 bg-white border border-gray-200">
+                    <SelectTrigger className="h-[60px] bg-white border-gray-200 hover:bg-gray-50">
                       <SelectValue>
-                        <div className="flex items-center gap-2">
-                          <Image src={currentToToken.imageUrl} alt={currentToToken.symbol} width={24} height={24} className="rounded-full" />
-                          <span className="font-medium">{currentToToken.symbol}</span>
+                        <div className="flex items-center gap-3">
+                          <Image 
+                            src={currentToToken.imageUrl} 
+                            alt={currentToToken.symbol} 
+                            width={32} 
+                            height={32} 
+                            className="rounded-full"
+                          />
+                          <span className="text-lg">{currentToToken.symbol}</span>
                         </div>
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       {Object.values(TOKENS).map(token => (
                         <SelectItem key={token.symbol} value={token.symbol}>
-                          <div className="flex items-center gap-2">
-                            <Image src={token.imageUrl} alt={token.symbol} width={24} height={24} className="rounded-full" />
+                          <div className="flex items-center gap-3">
+                            <Image 
+                              src={token.imageUrl} 
+                              alt={token.symbol} 
+                              width={32} 
+                              height={32} 
+                              className="rounded-full"
+                            />
                             <span>{token.symbol}</span>
                           </div>
                         </SelectItem>
@@ -257,15 +282,15 @@ export default function GlyphSwap() {
                   Available liquidity: {(liquidityPool[currentToToken.symbol] || 0).toLocaleString()} {currentToToken.symbol}
                 </div>
 
-                <div>
-                  <label className="block text-gray-600 text-lg mb-2">Your Photonic Wallet Address</label>
+                <div className="space-y-1.5">
+                  <label className="text-gray-600 text-lg">Your Photonic Wallet Address</label>
                   <Input
                     type="text"
                     placeholder="Enter your wallet address"
                     value={walletAddress}
                     onChange={(e) => setWalletAddress(e.target.value)}
                     required
-                    className="h-14 bg-white border-gray-200"
+                    className="h-[60px] bg-white border-gray-200"
                   />
                 </div>
 
@@ -274,21 +299,21 @@ export default function GlyphSwap() {
                     Estimated amount: {estimatedAmount.toFixed(6)} {currentToToken.symbol}
                   </div>
                 )}
-              </div>
 
-              <Button 
-                type="submit" 
-                className="w-full h-14 bg-[#F4B95F] hover:bg-[#E5AA50] text-white font-medium text-lg rounded-xl"
-              >
-                Swap Tokens
-              </Button>
+                <Button 
+                  type="submit" 
+                  className="w-full h-[60px] bg-[#F4B95F] hover:bg-[#E5AA50] text-white font-medium text-lg rounded-2xl"
+                >
+                  Swap Tokens
+                </Button>
+              </div>
             </form>
           ) : (
             <div className="space-y-4">
               <h2 className="text-xl font-bold">Swap Initiated</h2>
               <p>You are swapping {amount} {currentFromToken.symbol} for approximately {estimatedAmount.toFixed(6)} {currentToToken.symbol}.</p>
               <p>Please send {amount} {currentFromToken.symbol} to the following address:</p>
-              <div className="bg-gray-100 p-2 rounded flex items-center justify-between">
+              <div className="bg-gray-50 p-3 rounded-xl flex items-center justify-between">
                 <span className="text-sm break-all">{SWAP_WALLET}</span>
                 <Button variant="outline" size="sm" onClick={() => navigator.clipboard.writeText(SWAP_WALLET)}>
                   <Copy className="h-4 w-4" />
@@ -304,9 +329,12 @@ export default function GlyphSwap() {
                 placeholder="Enter transaction ID" 
                 value={transactionId}
                 onChange={(e) => setTransactionId(e.target.value)}
-                className="h-14 bg-white border-gray-200"
+                className="h-[60px] bg-white border-gray-200"
               />
-              <Button onClick={handleVerifyTransaction} className="w-full h-14 bg-[#F4B95F] hover:bg-[#E5AA50] text-white font-medium text-lg rounded-xl">
+              <Button 
+                onClick={handleVerifyTransaction} 
+                className="w-full h-[60px] bg-[#F4B95F] hover:bg-[#E5AA50] text-white font-medium text-lg rounded-2xl"
+              >
                 Verify Transaction
               </Button>
               {verificationStatus === 'success' && (
@@ -327,13 +355,15 @@ export default function GlyphSwap() {
                   </AlertDescription>
                 </Alert>
               )}
-              <Button variant="outline" onClick={handleBack} className="w-full h-14">Back to Swap</Button>
+              <Button variant="outline" onClick={handleBack} className="w-full h-[60px] rounded-2xl">
+                Back to Swap
+              </Button>
               <a href={DISCORD_URL} target="_blank" rel="noopener noreferrer" className="block text-center text-blue-500 hover:underline">
                 Need help? Join our Discord
               </a>
             </div>
           )}
-        </div>
+        </Card>
       </div>
     </div>
   )
